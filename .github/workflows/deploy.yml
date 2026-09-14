@@ -43,13 +43,21 @@ jobs:
           ssh-keygen -lf /tmp/deploy_key.pub
       
       - name: Copy Compose file to Frontend EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.FE_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY_PEM }}
-          source: "compose.yaml"
-          target: "~/wanderlust/frontend/"
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY_PEM }}
+          FE_PUBLIC_IP: ${{ secrets.FE_PUBLIC_IP }}
+        run: |
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/wanderlust_key
+          chmod 600 ~/.ssh/wanderlust_key
+
+          ssh-keyscan -H "$FE_PUBLIC_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+          scp -i ~/.ssh/wanderlust_key \
+            -o StrictHostKeyChecking=yes \
+            compose.yaml \
+            ubuntu@"$FE_PUBLIC_IP":~/wanderlust/frontend/compose.yaml
 
       - name: Deploy Frontend
         uses: appleboy/ssh-action@v1.0.3
