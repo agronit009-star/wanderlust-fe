@@ -1,0 +1,9 @@
+services:
+  frontend:
+    build: .
+    container_name: wanderlust-frontend
+    restart: unless-stopped
+    env_file:
+      - .env.local
+    ports:
+      - "127.0.0.1:5173:5173"
