@@ -59,6 +59,22 @@ jobs:
             compose.yaml \
             ubuntu@"$FE_PUBLIC_IP":~/wanderlust/frontend/compose.yaml
 
+      - name: Test SSH connection
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY_PEM }}
+          FE_PUBLIC_IP: ${{ secrets.FE_PUBLIC_IP }}
+        run: |
+          printf '%s\n' "$SSH_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+
+          ssh-keyscan -H "$FE_PUBLIC_IP" >> ~/.ssh/known_hosts 2>/dev/null
+
+          ssh -i /tmp/deploy_key \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            ubuntu@"$FE_PUBLIC_IP" \
+            "echo SSH_CONNECTION_SUCCESS"
+
       - name: Deploy Frontend
         uses: appleboy/ssh-action@v1.0.3
         env:
