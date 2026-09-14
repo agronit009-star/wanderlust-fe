@@ -1,6 +1,6 @@
 services:
   frontend:
-    build: .
+    image: ${ECR_REGISTRY}/wanderlust-frontend:latest
     container_name: wanderlust-frontend
     restart: unless-stopped
     env_file:
