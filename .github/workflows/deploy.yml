@@ -33,6 +33,15 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
+      - name: Validate SSH key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY_PEM }}
+        run: |
+          printf '%s\n' "$SSH_KEY" > /tmp/deploy_key
+          chmod 600 /tmp/deploy_key
+          ssh-keygen -y -f /tmp/deploy_key > /tmp/deploy_key.pub
+          ssh-keygen -lf /tmp/deploy_key.pub
+      
       - name: Copy Compose file to Frontend EC2
         uses: appleboy/scp-action@v0.1.7
         with:
