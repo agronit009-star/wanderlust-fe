@@ -3,6 +3,7 @@ name: Wanderlust FE — ECR Deploy
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy-frontend:
